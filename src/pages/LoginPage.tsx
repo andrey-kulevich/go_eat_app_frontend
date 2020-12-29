@@ -42,7 +42,7 @@ export default function LoginPage() {
     const {clearError, request, loading, error} = useHttp()
     const [login, setLogin] = useState<string>('')
     const [password, setPassword] = useState<string>('')
-    const {user, setIsAuth, setUser} = useContext(UserContext)
+    const {setIsAuth, setUser} = useContext(UserContext)
     const history = useHistory()
 
     const handleSubmit = async (event: React.FormEvent<EventTarget>) => {
@@ -50,8 +50,7 @@ export default function LoginPage() {
         try {
             await request(requests.login.url(login, password), requests.login.method, null)
                 .then(data => {
-                    setUser(data as UserInterface)
-                    localStorage.setItem('user', `${data.id}`)
+                    setUser(data)
                     localStorage.setItem('isAuth', 'true')
                     setIsAuth(true)
                 })

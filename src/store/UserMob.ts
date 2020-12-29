@@ -27,7 +27,16 @@ class UserMob {
     setIsAuth = (isAuth: boolean) => {this.isAuth = isAuth}
 
     @action
-    setUser = (user: UserInterface) => { this.user = user }
+    setUser = (user: any) => {
+        this.user.id = user.id
+        this.user.name = user.name
+        this.user.age = user.age
+        this.user.gender = user.gender
+        this.user.avatar = user.avatar
+        this.user.preferences = user.preferences
+        this.user.status = user.status
+        this.user.role = user.role
+    }
 
     @action
     setStatus = (status: string) => {this.user.status = status}

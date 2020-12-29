@@ -64,6 +64,8 @@ export const HomePage = () => {
     const [isBySender, setIsBySender] = useState<boolean>(false)
     const [isByRecipient, setIsByRecipient] = useState<boolean>(false)
 
+    console.log(user)
+
     useEffect(() => {
         if (!isByRecipient && !isBySender) {
             request(requests.getInvitationsByLocation.url(filterOn, filterValue),

@@ -5,7 +5,6 @@ import { Switch, Route, Redirect } from "react-router-dom";
 import {routes} from "../helpers/paths";
 import {HomePage} from "../pages/HomePage";
 import Login from "../pages/LoginPage";
-import {requests} from "../helpers/requests";
 import {useHttp} from "./useHttp";
 import {WaitingPage} from "../pages/WaitingPage";
 import {UserContext} from "../context/UserProvider";
@@ -13,13 +12,12 @@ import {UserContext} from "../context/UserProvider";
 export const useRoutes = () => {
     const {user, isAuth} = useContext(UserContext)
     const {request, loading} = useHttp()
-    const [rand, setRand] = useState<number>(0)
+    const [update, setUpdate] = useState<boolean>(true)
 
-    useEffect(() => {
-        const auth = localStorage.getItem('isAuth')
-        if (auth === 'true') setRand(Math.random)
-        else setRand(Math.random)
-    },[localStorage.getItem('isAuth')])
+    // useEffect(() => {
+    //     //document.location.reload()
+    //     setUpdate(false)
+    // },[update])
 
     return useObserver(() => (
         <Switch>
