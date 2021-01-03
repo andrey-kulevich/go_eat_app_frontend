@@ -51,7 +51,8 @@ export default function LoginPage() {
             await request(requests.login.url(login, password), requests.login.method, null)
                 .then(data => {
                     setUser(data)
-                    localStorage.setItem('isAuth', 'true')
+                    // localStorage.setItem('isAuth', 'true')
+                    // localStorage.setItem('user', JSON.stringify(data))
                     setIsAuth(true)
                 })
             history.push(routes.toHome)

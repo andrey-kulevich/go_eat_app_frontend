@@ -5,6 +5,8 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import {createStyles, makeStyles} from "@material-ui/core/styles";
 import {UserContext} from "../../context/UserProvider";
+import {useHistory} from "react-router-dom";
+import {routes} from "../../helpers/paths";
 
 const useStyles = makeStyles(() =>
     createStyles({
@@ -17,6 +19,7 @@ const useStyles = makeStyles(() =>
 export const ExitBtn = () => {
     const [open, setOpen] = React.useState(false);
     const classes = useStyles()
+    const history = useHistory()
     const {setIsAuth} = useContext(UserContext)
 
     const handleClickOpen = () => {setOpen(true);};
@@ -45,8 +48,9 @@ export const ExitBtn = () => {
                     </Button>
                     <Button
                         onClick={() => {
-                            setIsAuth(false)
-                            localStorage.clear()}
+                            localStorage.clear()
+                            history.push(routes.toLogin)
+                            }
                         }
                         color="primary"
                         autoFocus

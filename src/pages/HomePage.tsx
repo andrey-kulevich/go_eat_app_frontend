@@ -5,12 +5,18 @@ import {
     Paper, FormControlLabel, FormControl, InputLabel, Select, MenuItem,
     TableCell, TableBody, TableHead, TableContainer, TableRow, Table, Button
 } from "@material-ui/core";
-import {useObserver} from "mobx-react-lite";
+import {observer, useObserver} from "mobx-react-lite";
 import {makeStyles, Theme} from "@material-ui/core/styles";
 import {UserContext} from "../context/UserProvider";
 import {useHttp} from "../hooks/useHttp";
 import {requests} from "../helpers/requests";
 import {InvitationInterface} from "../interfaces/InvitationInterface";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogActions from "@material-ui/core/DialogActions";
+import Dialog from "@material-ui/core/Dialog";
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import {UserInterface} from "../interfaces/UserInterface";
+
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -53,9 +59,8 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-export const HomePage = () => {
+export const HomePage = (user: {user:UserInterface}) => {
     const classes = useStyles();
-    const {user} = useContext(UserContext)
     const {request} = useHttp()
     const [invitations, setInvitations] = useState<InvitationInterface[]>([])
     const [filterOn, setFilterOn] = useState<string>('country')
@@ -64,18 +69,16 @@ export const HomePage = () => {
     const [isBySender, setIsBySender] = useState<boolean>(false)
     const [isByRecipient, setIsByRecipient] = useState<boolean>(false)
 
-    console.log(user)
-
     useEffect(() => {
         if (!isByRecipient && !isBySender) {
             request(requests.getInvitationsByLocation.url(filterOn, filterValue),
                 requests.getInvitationsByLocation.method, null)
                 .then(data => {setInvitations(data as InvitationInterface[])})
         } else if (isBySender) {
-            request(requests.getInvitationsMadeByPerson.url(1), requests.getPersonalInvitations.method, null)
+            request(requests.getInvitationsMadeByPerson.url(user.user.id), requests.getPersonalInvitations.method, null)
                 .then(data => {setInvitations(data as InvitationInterface[])})
         } else if (isByRecipient) {
-            request(requests.getPersonalInvitations.url(1), requests.getPersonalInvitations.method, null)
+            request(requests.getPersonalInvitations.url(user.user.id), requests.getPersonalInvitations.method, null)
                 .then(data => {setInvitations(data as InvitationInterface[])})
         }
 
@@ -150,6 +153,7 @@ export const HomePage = () => {
                         </FormControl>
                         <TextField
                             label="Значение"
+                            value={filterValue}
                             disabled={isByRecipient || isBySender}
                             className={classes.valueField}
                             onChange={handleFilterValueChange}
@@ -178,7 +182,7 @@ export const HomePage = () => {
                             <TableBody>
                                 {invitations.length > 0 ?
                                     (invitations.map((elem, index) => (
-                                        <TableRow key={index}>
+                                        <TableRow key={index} hover={true} onClick={()=>alert(index)}>
                                             <TableCell>{elem.dateTime}</TableCell>
                                             <TableCell>{elem.place.name}</TableCell>
                                             <TableCell>{elem.whoWillPay === 1 ?'создатель':'получатель'}</TableCell>
@@ -186,11 +190,7 @@ export const HomePage = () => {
                                             <TableCell>{elem.sender}</TableCell>
                                             <TableCell>{elem.recipient}</TableCell>
                                             <TableCell>
-                                                <Checkbox
-                                                    checked={elem.accepted}
-                                                    //onChange={leftHandChange}
-                                                    color={"primary"}
-                                                />
+                                                {elem.accepted ? <CheckCircleIcon color="primary"/> : ''}
                                             </TableCell>
                                         </TableRow>
                                     )))

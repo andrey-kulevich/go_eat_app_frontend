@@ -11,8 +11,7 @@ export const useHttp = () => {
             let headers:any = {}
             if(body) {
                 body = JSON.stringify(body)
-                headers['Content-Type'] = 'application/json; charset=utf-8'
-                headers['Access-Control-Allow-Origin'] = '*'
+                headers['Content-Type'] = 'application/json'
             }
             const response = await fetch(`https://localhost:44399/${url}`, {method, body, headers})
             let data = null

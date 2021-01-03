@@ -17,12 +17,6 @@ class UserMob {
 
     @observable isAuth: boolean = false
 
-    // constructor() {
-    //     if (user) {
-    //         this.user = user
-    //     }
-    // }
-
     @action
     setIsAuth = (isAuth: boolean) => {this.isAuth = isAuth}
 
