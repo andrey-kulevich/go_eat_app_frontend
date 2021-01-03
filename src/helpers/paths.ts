@@ -1,7 +1,6 @@
 export const routes = {
     toHome: '/home',
     toLogin: '/login',
-    toDialogsPage: '/patient/:patientId',
-    //goToPatientPage: (patientId:number) => `/patient/${patientId}`,
+    toUserPage: (userId: number) => `/user/${userId}`,
     toWaitingPage: '/waiting',
 }

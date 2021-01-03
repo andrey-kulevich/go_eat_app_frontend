@@ -3,6 +3,7 @@ import { Switch, Route, Redirect } from "react-router-dom";
 import {routes} from "../helpers/paths";
 import {HomePage} from "../pages/HomePage";
 import Login from "../pages/LoginPage";
+import {UserPage} from "../pages/UserPage";
 import {UserContext} from "../context/UserProvider";
 import {WaitingPage} from "../pages/WaitingPage";
 import {useObserver} from "mobx-react-lite";
@@ -19,6 +20,7 @@ export const useRoutes = () => {
         <Switch>
             <Route exact path={routes.toHome}> <HomePage user={user}/> </Route>
             <Route exact path={routes.toLogin}> <Login/> </Route>
+            <Route exact path={routes.toUserPage(user.id)}> <UserPage/> </Route>
         </Switch>
     ))
 }

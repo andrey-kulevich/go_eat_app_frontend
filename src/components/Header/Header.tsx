@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -6,6 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import { useHistory } from 'react-router-dom';
 import {routes} from "../../helpers/paths";
 import {ExitBtn} from "./ExitBtn";
+import {UserContext} from "../../context/UserProvider";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -26,6 +27,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function Header() {
     const classes = useStyles();
     const history = useHistory()
+    const {user} = useContext(UserContext)
 
     return (
         <div className={classes.root}>
@@ -41,7 +43,7 @@ export default function Header() {
                     <Typography
                         variant="button"
                         className={classes.menuButton}
-                        onClick={() => history.push(routes.toHome)}
+                        onClick={() => history.push(routes.toUserPage(user.id))}
                     >
                         настройки
                     </Typography>
