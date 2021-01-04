@@ -11,11 +11,11 @@ import {UserContext} from "../context/UserProvider";
 import {useHttp} from "../hooks/useHttp";
 import {requests} from "../helpers/requests";
 import {InvitationInterface} from "../interfaces/InvitationInterface";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogActions from "@material-ui/core/DialogActions";
-import Dialog from "@material-ui/core/Dialog";
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import {UserInterface} from "../interfaces/UserInterface";
+import {AddInvitation} from '../components/HomePage/AddInvitation';
+import Fab from "@material-ui/core/Fab";
+import AddIcon from "@material-ui/icons/Add";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -68,6 +68,7 @@ export const HomePage = (user: {user:UserInterface}) => {
     const [update, setUpdate] = useState<boolean>(true)
     const [isBySender, setIsBySender] = useState<boolean>(false)
     const [isByRecipient, setIsByRecipient] = useState<boolean>(false)
+    const [open, setOpen] = useState<boolean>(false)
 
     useEffect(() => {
         if (!isByRecipient && !isBySender) {
@@ -107,7 +108,16 @@ export const HomePage = (user: {user:UserInterface}) => {
                         className={classes.grid}
                     >
                         <Grid item> <Typography variant={"h5"}> Список приглашений </Typography> </Grid>
-                        <Grid item> </Grid>
+                        <Grid item>
+                            <Fab
+                                color="primary"
+                                aria-label="add"
+                                onClick={() => setOpen(true)}
+                                size={"small"}
+                            >
+                                <AddIcon />
+                            </Fab>
+                        </Grid>
                     </Grid>
                     <Typography variant={"h6"} className={classes.gridFilters}> Фильтры </Typography>
                     <Grid
@@ -203,6 +213,7 @@ export const HomePage = (user: {user:UserInterface}) => {
                         </Table>
                     </TableContainer>
                 </Paper>
+                <AddInvitation open={open} onClose={() => setOpen(false)}/>
             </Container>
         </>
     ))

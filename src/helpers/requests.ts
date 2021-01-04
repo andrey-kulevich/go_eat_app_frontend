@@ -116,4 +116,10 @@ export const requests = {
         url: 'api/messages',
         method: 'POST'
     },
+
+    // ---------------------- files -------------------------
+    getFile: {
+        url: (filename: string) => `api/files/${filename}`,
+        method: 'GET'
+    }
 }

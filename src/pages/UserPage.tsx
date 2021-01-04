@@ -3,7 +3,7 @@ import Header from "../components/Header/Header";
 import {
     Container, createStyles, Typography, Paper, List, ListItem, Divider, ListItemText, Collapse
 } from "@material-ui/core";
-import {observer, useObserver} from "mobx-react-lite";
+import {useObserver} from "mobx-react-lite";
 import {makeStyles, Theme} from "@material-ui/core/styles";
 import {UserContext} from "../context/UserProvider";
 import {useHttp} from "../hooks/useHttp";
@@ -11,6 +11,8 @@ import {requests} from "../helpers/requests";
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import {DishInterface} from "../interfaces/DishInterface";
+import Avatar from '@material-ui/core/Avatar';
+import {UserInterface} from "../interfaces/UserInterface";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -33,10 +35,14 @@ const useStyles = makeStyles((theme: Theme) =>
         nested2: {
             paddingLeft: theme.spacing(10),
         },
+        avatar: {
+            width: theme.spacing(25),
+            height: theme.spacing(25),
+        }
     }),
 );
 
-export const UserPage = () => { //user: {user:UserInterface}
+export const UserPage = () => {
     const classes = useStyles();
     const {request} = useHttp()
     const {user} = useContext(UserContext)
@@ -45,11 +51,12 @@ export const UserPage = () => { //user: {user:UserInterface}
     const [open2, setOpen2] = useState<boolean>(false);
     const [open3, setOpen3] = useState<boolean>(false);
     const [open4, setOpen4] = useState<boolean>(false);
+    const [imgSource, setImgSource] = useState('')
 
     useEffect(() => {
-        // request(requests.getInvitationsByLocation.url(filterOn, filterValue),
-        //     requests.getInvitationsByLocation.method, null)
-        //     .then(data => {setInvitations(data as InvitationInterface[])})
+        fetch(`https://localhost:44399/api/files/${user.avatar}`, {method: 'GET'})
+            .then(response => response.blob())
+            .then(img => {setImgSource(URL.createObjectURL(img))})
     }, [])
 
     const handleFilterChange = (event : ChangeEvent<HTMLInputElement>) => {
@@ -63,7 +70,7 @@ export const UserPage = () => { //user: {user:UserInterface}
                     <ListItemText><b>{text}</b></ListItemText>
                     {open ? <ExpandLess /> : <ExpandMore />}
                 </ListItem>
-                {dish !== null ?
+                {dish !== null && dish !== undefined ?
                 <Collapse in={open} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
                         <ListItem className={classes.nested2}>
@@ -91,6 +98,7 @@ export const UserPage = () => { //user: {user:UserInterface}
             <Container>
                 <Paper className={classes.paper} elevation={5}>
                     <Typography variant={"h4"}>{user.name}</Typography>
+                    <Avatar src={imgSource} alt={'avatar'} className={classes.avatar}/>
                     <List>
                         <ListItem key={0}><ListItemText><b>Возраст:</b> {user.age}</ListItemText></ListItem>
                         <Divider />
