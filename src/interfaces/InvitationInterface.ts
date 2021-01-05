@@ -12,3 +12,12 @@ export interface InvitationInterface {
     recipient: string,
     accepted: boolean
 }
+
+export interface InvitationCreateInterface {
+    dateTime: string,
+    address: number,
+    whoWillPay: number,
+    message: string,
+    senderId: number,
+    recipientId: number
+}

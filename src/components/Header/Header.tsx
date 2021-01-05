@@ -42,19 +42,14 @@ export default function Header() {
                     </Typography>
                     <Typography
                         variant="button"
-                        className={classes.menuButton}
+                        className={classes.flexGrow}
                         onClick={() => history.push(routes.toUserPage(user.id))}
                     >
-                        настройки
+                        мой профиль
                     </Typography>
-                    <Typography
-                        variant="button"
-                        className={classes.flexGrow}
-                        onClick={() => history.push(routes.toHome)}
-                    >
-                        сообщения
-                    </Typography>
+
                     <ExitBtn/>
+
                 </Toolbar>
             </AppBar>
         </div>
