@@ -9,6 +9,10 @@ export const requests = {
         url: (userId: number) => `api/users/${userId}`,
         method: 'GET'
     },
+    getUserByLogin: {
+        url: (login: string) => `api/users/login/${login}`,
+        method: 'GET'
+    },
     createUser: {
         url: 'api/users',
         method: 'POST'
@@ -48,6 +52,10 @@ export const requests = {
     },
     createPlace: {
         url: 'api/places',
+        method: 'POST'
+    },
+    createEmptyPlace: {
+        url: 'api/places/empty',
         method: 'POST'
     },
     getReviewsByPlaceId: {

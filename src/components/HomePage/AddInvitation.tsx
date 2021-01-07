@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {ChangeEvent, useContext, useEffect, useState} from 'react';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -41,6 +41,10 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         valueField: {
             flexGrow: 1
+        },
+        grid: {
+            width: '40%',
+            marginRight: theme.spacing(2)
         }
     }),
 );
@@ -57,13 +61,24 @@ export const AddInvitation = ({open, onClose } : {open: boolean, onClose: any}) 
     const [dateTime, setDateTime] = useState<string>('')
     const [message, setMessage] = useState<string>('')
     const [login, setLogin] = useState<string>('')
-    const [isLoginExist, setIsLoginExist] = useState<boolean>(true)
+    const [recipientId, setRecipientId] = useState<number>(0)
+    //const [isLoginExist, setIsLoginExist] = useState<boolean>(true)
     const [isCreateNewAddress, setIsCreateNewAddress] = useState<boolean>(false)
     const [places, setPlaces] = useState<PlaceInterface[]>([])
     const [selectedPlace, setSelectedPlace] = useState<number>(0)
 
+    const [country, setCountry] = useState<string>('')
+    const [region, setRegion] = useState<string>('')
+    const [town, setTown] = useState<string>('')
+    const [mailIndex, setMailIndex] = useState<string>('')
+    const [street, setStreet] = useState<string>('')
+    const [house, setHouse] = useState<string>('')
+    const [apartment, setApartment] = useState<string>('')
+    const [name, setName] = useState<string>('')
+
     useEffect(() => {
-        request(requests.getPlacesByLocationAndPreferences.url(selectFilterValue, filterValue, 'null', 'null'),
+        request(requests.getPlacesByLocationAndPreferences
+                .url(selectFilterValue, filterValue, 'null', 'null'),
             requests.getPlacesByLocationAndPreferences.method, null)
             .then(data => {setPlaces(data as PlaceInterface[])})
 
@@ -81,10 +96,30 @@ export const AddInvitation = ({open, onClose } : {open: boolean, onClose: any}) 
                     "SenderId": user.id,
                     "RecipientId": -1
                 })
-                .then(data => {console.log(data)})
+                .catch(err => console.log(err))
+        } else {
+            request(requests.createInvitation.url,
+                requests.createInvitation.method, {
+                    "DateTime": dateTime,
+                    "Address": selectedPlace,
+                    "WhoWillPay": whoWillPay ? 1 : 0,
+                    "Message": message,
+                    "SenderId": user.id,
+                    "RecipientId": recipientId
+                })
+                .catch(err => console.log(err))
         }
-
         onClose()
+    }
+
+    const handleSetRecipient = (event : ChangeEvent<HTMLInputElement>) => {
+        setLogin(event.target.value as string)
+        request(requests.getUserByLogin.url(event.target.value as string),
+            requests.getUserByLogin.method, null).then(data => {
+                setRecipientId(data.id)
+                //setIsLoginExist(true)
+            })
+            //.catch(err => {setIsLoginExist(false)})
     }
 
     return (
@@ -168,7 +203,86 @@ export const AddInvitation = ({open, onClose } : {open: boolean, onClose: any}) 
 
                     {isCreateNewAddress ?
                         <>
-                            'aaaa'
+                            <Grid
+                                container
+                                direction="row"
+                                justify="flex-start"
+                            >
+                                <TextField
+                                    id="name"
+                                    label="Название"
+                                    className={classes.grid}
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                />
+                                <TextField
+                                    id="country"
+                                    label="Страна"
+                                    className={classes.grid}
+                                    value={country}
+                                    onChange={(e) => setCountry(e.target.value)}
+                                />
+                            </Grid>
+                            <Grid
+                                container
+                                direction="row"
+                                justify="flex-start"
+                            >
+                                <TextField
+                                    id="region"
+                                    label="Область"
+                                    className={classes.grid}
+                                    value={region}
+                                    onChange={(e) => setRegion(e.target.value)}
+                                />
+                                <TextField
+                                    id="town"
+                                    label="Город"
+                                    className={classes.grid}
+                                    value={town}
+                                    onChange={(e) => setTown(e.target.value)}
+                                />
+                            </Grid>
+                            <Grid
+                                container
+                                direction="row"
+                                justify="flex-start"
+                            >
+                                <TextField
+                                    id="mail_index"
+                                    label="Почтовый индекс"
+                                    className={classes.grid}
+                                    value={mailIndex}
+                                    onChange={(e) => setMailIndex(e.target.value)}
+                                />
+                                <TextField
+                                    id="street"
+                                    label="Улица"
+                                    className={classes.grid}
+                                    value={street}
+                                    onChange={(e) => setStreet(e.target.value)}
+                                />
+                            </Grid>
+                            <Grid
+                                container
+                                direction="row"
+                                justify="flex-start"
+                            >
+                                <TextField
+                                    id="house"
+                                    label="Дом"
+                                    className={classes.grid}
+                                    value={house}
+                                    onChange={(e) => setHouse(e.target.value)}
+                                />
+                                <TextField
+                                    id="apartment"
+                                    label="Сектор"
+                                    className={classes.grid}
+                                    value={apartment}
+                                    onChange={(e) => setApartment(e.target.value)}
+                                />
+                            </Grid>
                             <br/>
                         </>
                         : ''}
@@ -192,10 +306,9 @@ export const AddInvitation = ({open, onClose } : {open: boolean, onClose: any}) 
                     <TextField
                         margin="dense"
                         id="recipientLogin"
-                        error={!isLoginExist}
                         label="Логин получателя (необязательное поле)"
                         value={login}
-                        onChange={(e) => setLogin(e.target.value)}
+                        onChange={handleSetRecipient}
                         fullWidth
                     />
                 </DialogContent>
