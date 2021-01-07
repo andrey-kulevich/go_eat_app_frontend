@@ -84,7 +84,7 @@ export const HomePage = (user: {user:UserInterface}) => {
         }
 
         setUpdate(false)
-    }, [update])
+    }, [update, open])
 
     const handleFilterChange = (event: ChangeEvent<{ name?: string | undefined; value: unknown; }>) => {
         setFilterOn(event.target.value as string)

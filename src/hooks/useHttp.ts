@@ -15,7 +15,7 @@ export const useHttp = () => {
             }
             const response = await fetch(`https://localhost:44399/${url}`, {method, body, headers})
             let data = null
-            if (method === 'POST' || method === 'GET') data = await response.json()
+            if (method === 'GET') data = await response.json()
             if(!response.ok) console.log(Error(data ? data.message : 'Something wrong'))
             setLoading(false)
             return data

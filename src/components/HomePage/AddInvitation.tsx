@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -16,6 +16,10 @@ import {
     Select, Typography
 } from "@material-ui/core";
 import {makeStyles, Theme} from "@material-ui/core/styles";
+import {requests} from "../../helpers/requests";
+import {useHttp} from "../../hooks/useHttp";
+import {PlaceInterface} from "../../interfaces/PlaceInterface";
+import {UserContext} from "../../context/UserProvider";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -44,13 +48,44 @@ const useStyles = makeStyles((theme: Theme) =>
 export const AddInvitation = ({open, onClose } : {open: boolean, onClose: any}) => {
 
     const classes = useStyles();
-    const [selectValue, setSelectValue] = useState<string>('')
+    const {user} = useContext(UserContext)
+    const {request} = useHttp()
+    const [update, setUpdate] = useState<boolean>(true)
+    const [selectFilterValue, setSelectFilterValue] = useState<string>('country')
+    const [filterValue, setFilterValue] = useState<string>('Россия')
     const [whoWillPay, setWhoWillPay] = useState<boolean>(false)
     const [dateTime, setDateTime] = useState<string>('')
     const [message, setMessage] = useState<string>('')
     const [login, setLogin] = useState<string>('')
     const [isLoginExist, setIsLoginExist] = useState<boolean>(true)
     const [isCreateNewAddress, setIsCreateNewAddress] = useState<boolean>(false)
+    const [places, setPlaces] = useState<PlaceInterface[]>([])
+    const [selectedPlace, setSelectedPlace] = useState<number>(0)
+
+    useEffect(() => {
+        request(requests.getPlacesByLocationAndPreferences.url(selectFilterValue, filterValue, 'null', 'null'),
+            requests.getPlacesByLocationAndPreferences.method, null)
+            .then(data => {setPlaces(data as PlaceInterface[])})
+
+        setUpdate(false)
+    }, [update])
+
+    const createInvitation = () => {
+        if (login === '') {
+            request(requests.createInvitation.url,
+                requests.createInvitation.method, {
+                    "DateTime": dateTime,
+                    "Address": selectedPlace,
+                    "WhoWillPay": whoWillPay ? 1 : 0,
+                    "Message": message,
+                    "SenderId": user.id,
+                    "RecipientId": -1
+                })
+                .then(data => {console.log(data)})
+        }
+
+        onClose()
+    }
 
     return (
         <div>
@@ -79,9 +114,9 @@ export const AddInvitation = ({open, onClose } : {open: boolean, onClose: any}) 
                             <Select
                                 labelId="demo-simple-select-label"
                                 id="demo-simple-select"
-                                //value={filterOn}
+                                value={selectFilterValue}
                                 onChange={(e) =>
-                                    setSelectValue(e.target.value as string)
+                                    setSelectFilterValue(e.target.value as string)
                                 }
                             >
                                 <MenuItem key={1} value={'country'}>Страна</MenuItem>
@@ -92,13 +127,13 @@ export const AddInvitation = ({open, onClose } : {open: boolean, onClose: any}) 
                         </FormControl>
                         <TextField
                             label="Значение"
-                            //value={filterValue}
+                            value={filterValue}
                             className={classes.valueField}
-                            //onChange={handleFilterValueChange}
+                            onChange={(e) => setFilterValue(e.target.value)}
                         />
                         <Button
                             color={'primary'}
-                            //onClick={()=>setUpdate(true)}
+                            onClick={() => setUpdate(true)}
                             className={classes.updateButton}
                         >
                             Обновить
@@ -110,13 +145,13 @@ export const AddInvitation = ({open, onClose } : {open: boolean, onClose: any}) 
                         <Select
                             labelId="demo-simple-select-label"
                             id="demo-simple-select"
-                            //value={filterOn}
-                            //onChange={}
+                            value={selectedPlace}
+                            onChange={(e) => setSelectedPlace(e.target.value as number)}
                         >
-                            <MenuItem key={1} value={'country'}>Страна</MenuItem>
-                            <MenuItem key={2} value={'region'}>Область</MenuItem>
-                            <MenuItem key={3} value={'town'}>Город</MenuItem>
-                            <MenuItem key={4} value={'street'}>Улица</MenuItem>
+                            {places.length > 0 ?
+                                (places.map(((item, index) =>
+                                        <MenuItem key={index} value={item.id}>{item.name}</MenuItem>
+                                ))) : ''}
                         </Select>
                     </FormControl>
 
@@ -166,7 +201,7 @@ export const AddInvitation = ({open, onClose } : {open: boolean, onClose: any}) 
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => onClose()} color="primary"> Отмена </Button>
-                    <Button color="primary"> Создать </Button>
+                    <Button color="primary" onClick={createInvitation}> Создать </Button>
                 </DialogActions>
             </Dialog>
         </div>
