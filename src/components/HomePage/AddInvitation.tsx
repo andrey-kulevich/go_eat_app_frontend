@@ -85,41 +85,54 @@ export const AddInvitation = ({open, onClose } : {open: boolean, onClose: any}) 
         setUpdate(false)
     }, [update])
 
-    const createInvitation = () => {
+    const auxiliaryCreate = (selected: number) => {
         if (login === '') {
-            request(requests.createInvitation.url,
-                requests.createInvitation.method, {
-                    "DateTime": dateTime,
-                    "Address": selectedPlace,
-                    "WhoWillPay": whoWillPay ? 1 : 0,
-                    "Message": message,
-                    "SenderId": user.id,
-                    "RecipientId": -1
-                })
+            request(requests.createInvitation.url, requests.createInvitation.method, {
+                "DateTime": dateTime,
+                "Address": selected,
+                "WhoWillPay": whoWillPay ? 1 : 0,
+                "Message": message,
+                "SenderId": user.id,
+                "RecipientId": -1
+            }).then(res => console.log(res))
                 .catch(err => console.log(err))
         } else {
-            request(requests.createInvitation.url,
-                requests.createInvitation.method, {
-                    "DateTime": dateTime,
-                    "Address": selectedPlace,
-                    "WhoWillPay": whoWillPay ? 1 : 0,
-                    "Message": message,
-                    "SenderId": user.id,
-                    "RecipientId": recipientId
-                })
+            request(requests.createInvitation.url, requests.createInvitation.method, {
+                "DateTime": dateTime,
+                "Address": selected,
+                "WhoWillPay": whoWillPay ? 1 : 0,
+                "Message": message,
+                "SenderId": user.id,
+                "RecipientId": recipientId
+            }).then(res => console.log(res))
                 .catch(err => console.log(err))
+        }
+    }
+
+    const createInvitation = () => {
+        if (isCreateNewAddress) {
+            request(requests.createEmptyPlace.url, requests.createEmptyPlace.method, {
+                "Name": name,
+                "Country": country,
+                "Region": region,
+                "Town": town,
+                "MailIndex": mailIndex,
+                "Street": street,
+                "House": house,
+                "Apartment": apartment
+            }).then(res => auxiliaryCreate(res))
+                .catch(err => console.log(err))
+        } else {
+            auxiliaryCreate(selectedPlace)
         }
         onClose()
     }
 
     const handleSetRecipient = (event : ChangeEvent<HTMLInputElement>) => {
         setLogin(event.target.value as string)
+
         request(requests.getUserByLogin.url(event.target.value as string),
-            requests.getUserByLogin.method, null).then(data => {
-                setRecipientId(data.id)
-                //setIsLoginExist(true)
-            })
-            //.catch(err => {setIsLoginExist(false)})
+            requests.getUserByLogin.method, null).then(data => {setRecipientId(data.id)})
     }
 
     return (
@@ -144,7 +157,7 @@ export const AddInvitation = ({open, onClose } : {open: boolean, onClose: any}) 
                         direction="row"
                         justify="flex-start"
                     >
-                        <FormControl className={classes.formControl}>
+                        <FormControl className={classes.formControl} disabled={isCreateNewAddress}>
                             <InputLabel id="demo-simple-select-label">Фильтровать места по</InputLabel>
                             <Select
                                 labelId="demo-simple-select-label"
@@ -163,11 +176,13 @@ export const AddInvitation = ({open, onClose } : {open: boolean, onClose: any}) 
                         <TextField
                             label="Значение"
                             value={filterValue}
+                            disabled={isCreateNewAddress}
                             className={classes.valueField}
                             onChange={(e) => setFilterValue(e.target.value)}
                         />
                         <Button
                             color={'primary'}
+                            disabled={isCreateNewAddress}
                             onClick={() => setUpdate(true)}
                             className={classes.updateButton}
                         >
@@ -175,7 +190,7 @@ export const AddInvitation = ({open, onClose } : {open: boolean, onClose: any}) 
                         </Button>
                     </Grid>
 
-                    <FormControl className={classes.formControl}>
+                    <FormControl className={classes.formControl} disabled={isCreateNewAddress}>
                         <InputLabel id="demo-simple-select-label">Место</InputLabel>
                         <Select
                             labelId="demo-simple-select-label"
@@ -197,7 +212,7 @@ export const AddInvitation = ({open, onClose } : {open: boolean, onClose: any}) 
                         className={classes.button}
                         onClick={() => setIsCreateNewAddress(!isCreateNewAddress)}
                     >
-                        Создать новое место
+                        {isCreateNewAddress ? 'Скрыть' : 'Создать новое место'}
                     </Button>
                     <br/>
 
