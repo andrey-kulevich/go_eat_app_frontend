@@ -16,6 +16,7 @@ import {UserInterface} from "../interfaces/UserInterface";
 import {AddInvitation} from '../components/HomePage/AddInvitation';
 import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
+import {AcceptInvitation} from "../components/HomePage/AcceptInvitation";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -69,6 +70,8 @@ export const HomePage = (user: {user:UserInterface}) => {
     const [isBySender, setIsBySender] = useState<boolean>(false)
     const [isByRecipient, setIsByRecipient] = useState<boolean>(false)
     const [open, setOpen] = useState<boolean>(false)
+    const [openAccept, setOpenAccept] = useState<boolean>(false)
+    const [selectedInvitation, setSelectedInvitation] = useState<InvitationInterface|null>(null)
 
     useEffect(() => {
         if (!isByRecipient && !isBySender) {
@@ -84,7 +87,7 @@ export const HomePage = (user: {user:UserInterface}) => {
         }
 
         setUpdate(false)
-    }, [update, open])
+    }, [update])
 
     const handleFilterChange = (event: ChangeEvent<{ name?: string | undefined; value: unknown; }>) => {
         setFilterOn(event.target.value as string)
@@ -192,10 +195,13 @@ export const HomePage = (user: {user:UserInterface}) => {
                             <TableBody>
                                 {invitations.length > 0 ?
                                     (invitations.map((elem, index) => (
-                                        <TableRow key={index} hover={true} onClick={()=>alert(index)}>
+                                        <TableRow key={index} hover={true} onClick={() => {
+                                            setSelectedInvitation(elem)
+                                            setOpenAccept(true)
+                                        }}>
                                             <TableCell>{elem.dateTime}</TableCell>
                                             <TableCell>{elem.place.name}</TableCell>
-                                            <TableCell>{elem.whoWillPay === 1 ?'создатель':'получатель'}</TableCell>
+                                            <TableCell>{elem.whoWillPay === 1 ?'создатель':'раздельно'}</TableCell>
                                             <TableCell>{elem.message}</TableCell>
                                             <TableCell>{elem.sender}</TableCell>
                                             <TableCell>{elem.recipient}</TableCell>
@@ -213,7 +219,19 @@ export const HomePage = (user: {user:UserInterface}) => {
                         </Table>
                     </TableContainer>
                 </Paper>
-                <AddInvitation open={open} onClose={() => setOpen(false)}/>
+
+                <AcceptInvitation
+                    invitation={selectedInvitation}
+                    open={openAccept}
+                    onClose={() => {
+                        setOpenAccept(false)
+                        setUpdate(true)
+                    }}/>
+
+                <AddInvitation open={open} onClose={() => {
+                    setOpen(false)
+                    setUpdate(true)
+                }}/>
             </Container>
         </>
     ))

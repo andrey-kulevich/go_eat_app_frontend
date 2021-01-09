@@ -50,6 +50,14 @@ export const requests = {
         url: (userId: number) => `api/places/favorite/${userId}`,
         method: 'GET'
     },
+    getVisitsCount: {
+        url: (addressId: number) => `api/places/visits/${addressId}`,
+        method: 'GET'
+    },
+    getRatingOfPlace: {
+        url: (addressId: number) => `api/places/rating/${addressId}`,
+        method: 'GET'
+    },
     createPlace: {
         url: 'api/places',
         method: 'POST'
