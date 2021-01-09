@@ -5,9 +5,8 @@ import {
     Paper, FormControlLabel, FormControl, InputLabel, Select, MenuItem,
     TableCell, TableBody, TableHead, TableContainer, TableRow, Table, Button, Tooltip, IconButton
 } from "@material-ui/core";
-import {observer, useObserver} from "mobx-react-lite";
+import {useObserver} from "mobx-react-lite";
 import {makeStyles, Theme} from "@material-ui/core/styles";
-import {UserContext} from "../context/UserProvider";
 import {useHttp} from "../hooks/useHttp";
 import {requests} from "../helpers/requests";
 import {InvitationInterface} from "../interfaces/InvitationInterface";

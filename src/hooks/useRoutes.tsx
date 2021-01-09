@@ -11,7 +11,7 @@ import {requests} from "../helpers/requests";
 
 export const useRoutes = () => {
 
-    const {user, isAuth, setUser, setIsAuth} = useContext(UserContext)
+    const {user, setUser, setIsAuth} = useContext(UserContext)
     const {request} = useHttp()
 
     useEffect(() => {

@@ -23,9 +23,7 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import EditIcon from '@material-ui/icons/Edit';
 import {DishInterface} from "../interfaces/DishInterface";
 import Avatar from '@material-ui/core/Avatar';
-import {UserInterface} from "../interfaces/UserInterface";
 import Button from "@material-ui/core/Button";
-import DialogActions from "@material-ui/core/DialogActions";
 
 
 const useStyles = makeStyles((theme: Theme) =>
