@@ -1,25 +1,13 @@
-import React, {ChangeEvent, useContext, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import {
-    Checkbox, Collapse,
-    createStyles, Divider,
-    FormControl,
-    FormControlLabel,
-    Grid,
-    InputLabel, List, ListItem, ListItemText,
-    MenuItem,
-    Select, Typography
-} from "@material-ui/core";
+import {Collapse, createStyles, Divider, List, ListItem, ListItemText} from "@material-ui/core";
 import {makeStyles, Theme} from "@material-ui/core/styles";
 import {requests} from "../../helpers/requests";
 import {useHttp} from "../../hooks/useHttp";
-import {PlaceInterface} from "../../interfaces/PlaceInterface";
-import {UserContext} from "../../context/UserProvider";
 import {InvitationInterface} from "../../interfaces/InvitationInterface";
 import Avatar from "@material-ui/core/Avatar";
 import PlaceIcon from '@material-ui/icons/Place';
@@ -39,11 +27,7 @@ export const AcceptInvitation = ({invitation, open, onClose } :
                                   {invitation: InvitationInterface|null, open: boolean, onClose: any}) => {
 
     const classes = useStyles();
-    const {user} = useContext(UserContext)
     const {request} = useHttp()
-    const [update, setUpdate] = useState<boolean>(true)
-    const [selectFilterValue, setSelectFilterValue] = useState<string>('country')
-    const [filterValue, setFilterValue] = useState<string>('Россия')
     const [imgSource, setImgSource] = useState('')
     const [openInfo, setOpenInfo] = useState<boolean>(false)
     const [visits, setVisits] = useState<number>(0)

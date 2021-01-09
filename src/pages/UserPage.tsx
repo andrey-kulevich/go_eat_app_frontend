@@ -1,7 +1,17 @@
 import React, {ChangeEvent, useContext, useEffect, useState} from "react";
 import Header from "../components/Header/Header";
 import {
-    Container, createStyles, Typography, Paper, List, ListItem, Divider, ListItemText, Collapse
+    Container,
+    createStyles,
+    Typography,
+    Paper,
+    List,
+    ListItem,
+    Divider,
+    ListItemText,
+    Collapse,
+    TextField,
+    ListItemSecondaryAction, IconButton
 } from "@material-ui/core";
 import {useObserver} from "mobx-react-lite";
 import {makeStyles, Theme} from "@material-ui/core/styles";
@@ -10,9 +20,12 @@ import {useHttp} from "../hooks/useHttp";
 import {requests} from "../helpers/requests";
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import ExpandLess from '@material-ui/icons/ExpandLess';
+import EditIcon from '@material-ui/icons/Edit';
 import {DishInterface} from "../interfaces/DishInterface";
 import Avatar from '@material-ui/core/Avatar';
 import {UserInterface} from "../interfaces/UserInterface";
+import Button from "@material-ui/core/Button";
+import DialogActions from "@material-ui/core/DialogActions";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -38,6 +51,9 @@ const useStyles = makeStyles((theme: Theme) =>
         avatar: {
             width: theme.spacing(25),
             height: theme.spacing(25),
+        },
+        statusField: {
+            paddingBottom: theme.spacing(3)
         }
     }),
 );
@@ -45,13 +61,16 @@ const useStyles = makeStyles((theme: Theme) =>
 export const UserPage = () => {
     const classes = useStyles();
     const {request} = useHttp()
-    const {user} = useContext(UserContext)
+    const {user, setUser, setIsAuth, setStatus} = useContext(UserContext)
     const [openPreferences, setOpenPreferences] = useState<boolean>(false);
     const [open1, setOpen1] = useState<boolean>(false);
     const [open2, setOpen2] = useState<boolean>(false);
     const [open3, setOpen3] = useState<boolean>(false);
     const [open4, setOpen4] = useState<boolean>(false);
     const [imgSource, setImgSource] = useState('')
+    const [isEdit, setIsEdit] = useState<boolean>(false)
+    const [statusField, setStatusField] = useState<string>('')
+    const [update, setUpdate] = useState<boolean>(true)
 
     useEffect(() => {
         fetch(`https://localhost:44399/api/files/${user.avatar}`, {method: 'GET'})
@@ -59,8 +78,26 @@ export const UserPage = () => {
             .then(img => {setImgSource(URL.createObjectURL(img))})
     }, [])
 
-    const handleFilterChange = (event : ChangeEvent<HTMLInputElement>) => {
+    useEffect(() => {
+        try {
+            request(requests.login.url(localStorage.getItem('login') as string,
+                localStorage.getItem('password') as string), requests.login.method, null)
+                .then(data => {
+                    setUser(data)
+                    setIsAuth(true)
+                })
+        } catch (e) {}
+        setUpdate(false)
+    }, [update])
 
+    const handleChangeStatus = () => {
+        request(requests.updateStatus.url, requests.updateStatus.method, {
+            "UserId": user.id,
+            "Status": statusField
+        }).then(res => {setUpdate(true)})
+            .catch(err => console.log(err))
+        setStatus(statusField)
+        setIsEdit(false)
     }
 
     const getListItemDish = (dish: DishInterface, text: string, open: boolean, setOpen: any) => {
@@ -104,7 +141,29 @@ export const UserPage = () => {
                         <Divider />
                         <ListItem key={1}><ListItemText><b>Пол:</b> {user.gender}</ListItemText></ListItem>
                         <Divider />
-                        <ListItem key={2}><ListItemText><b>Статус:</b> {user.status}</ListItemText></ListItem>
+                        <ListItem key={2}>
+                            <ListItemText>
+                                <span ><b>Статус: </b></span>
+                                {isEdit ?
+                                    <>
+                                        <TextField
+                                            label="Значение"
+                                            value={statusField}
+                                            onChange={(e) => {
+                                                setStatusField(e.target.value)
+                                            }}
+                                        />
+                                        <Button onClick={()=>setIsEdit(false)} color="primary">Отмена</Button>
+                                        <Button color="primary" onClick={handleChangeStatus}>Сохранить</Button>
+                                    </>
+                                    : user.status}
+                            </ListItemText>
+                            <ListItemSecondaryAction>
+                                <IconButton edge="end" aria-label="delete" onClick={()=>setIsEdit(true)}>
+                                    <EditIcon />
+                                </IconButton>
+                            </ListItemSecondaryAction>
+                        </ListItem>
                         <Divider />
                         <ListItem key={3} button onClick={()=>setOpenPreferences(!openPreferences)}>
                             <ListItemText><b>Предпочтения</b></ListItemText>

@@ -3,7 +3,7 @@ import Header from "../components/Header/Header";
 import {
     Container, createStyles, Typography, Grid, Checkbox, TextField,
     Paper, FormControlLabel, FormControl, InputLabel, Select, MenuItem,
-    TableCell, TableBody, TableHead, TableContainer, TableRow, Table, Button
+    TableCell, TableBody, TableHead, TableContainer, TableRow, Table, Button, Tooltip, IconButton
 } from "@material-ui/core";
 import {observer, useObserver} from "mobx-react-lite";
 import {makeStyles, Theme} from "@material-ui/core/styles";
@@ -16,7 +16,9 @@ import {UserInterface} from "../interfaces/UserInterface";
 import {AddInvitation} from '../components/HomePage/AddInvitation';
 import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
+import DeleteIcon from "@material-ui/icons/Delete";
 import {AcceptInvitation} from "../components/HomePage/AcceptInvitation";
+import {DeleteInvitation} from "../components/HomePage/DeleteInvitation";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -54,8 +56,8 @@ const useStyles = makeStyles((theme: Theme) =>
         valueField: {
             marginRight: theme.spacing(3),
         },
-        submit: {
-
+        delete: {
+            padding: 0
         }
     }),
 );
@@ -72,6 +74,8 @@ export const HomePage = (user: {user:UserInterface}) => {
     const [open, setOpen] = useState<boolean>(false)
     const [openAccept, setOpenAccept] = useState<boolean>(false)
     const [selectedInvitation, setSelectedInvitation] = useState<InvitationInterface|null>(null)
+    const [openDelete, setOpenDelete] = useState<boolean>(false)
+    const [selectedToDelete, setSelectedToDelete] = useState<number>(-1)
 
     useEffect(() => {
         if (!isByRecipient && !isBySender) {
@@ -88,6 +92,10 @@ export const HomePage = (user: {user:UserInterface}) => {
 
         setUpdate(false)
     }, [update])
+
+    useEffect(() => {
+        if (openDelete) setOpenAccept(false)
+    }, [openAccept])
 
     const handleFilterChange = (event: ChangeEvent<{ name?: string | undefined; value: unknown; }>) => {
         setFilterOn(event.target.value as string)
@@ -171,13 +179,7 @@ export const HomePage = (user: {user:UserInterface}) => {
                             className={classes.valueField}
                             onChange={handleFilterValueChange}
                         />
-                        <Button
-                            color={'primary'}
-                            onClick={()=>setUpdate(true)}
-                            className={classes.submit}
-                        >
-                            Обновить
-                        </Button>
+                        <Button color={'primary'} onClick={()=>setUpdate(true)}>Обновить</Button>
                     </Grid>
                     <TableContainer >
                         <Table size="small">
@@ -190,6 +192,7 @@ export const HomePage = (user: {user:UserInterface}) => {
                                     <TableCell>Создатель</TableCell>
                                     <TableCell>Получатель</TableCell>
                                     <TableCell>Принято</TableCell>
+                                    <TableCell></TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -207,6 +210,23 @@ export const HomePage = (user: {user:UserInterface}) => {
                                             <TableCell>{elem.recipient}</TableCell>
                                             <TableCell>
                                                 {elem.accepted ? <CheckCircleIcon color="primary"/> : ''}
+                                            </TableCell>
+                                            <TableCell>
+                                                {elem.senderId === user.user.id ?
+                                                    <Tooltip title={"Удалить приглашение"}>
+                                                        <IconButton
+                                                            color={"secondary"}
+                                                            aria-label="delete"
+                                                            className={classes.delete}
+                                                            onClick={() => {
+                                                                setSelectedToDelete(elem.id)
+                                                                setOpenDelete(true)
+                                                            }}
+                                                        >
+                                                            <DeleteIcon />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    : ''}
                                             </TableCell>
                                         </TableRow>
                                     )))
@@ -226,12 +246,22 @@ export const HomePage = (user: {user:UserInterface}) => {
                     onClose={() => {
                         setOpenAccept(false)
                         setUpdate(true)
-                    }}/>
+                    }}
+                />
 
                 <AddInvitation open={open} onClose={() => {
                     setOpen(false)
                     setUpdate(true)
                 }}/>
+
+                <DeleteInvitation
+                    invitationId={selectedToDelete}
+                    open={openDelete}
+                    onClose={() => {
+                        setOpenDelete(false)
+                        setUpdate(true)
+                    }}
+                />
             </Container>
         </>
     ))

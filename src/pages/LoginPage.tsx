@@ -13,7 +13,7 @@ import {useHttp} from "../hooks/useHttp";
 import {requests} from "../helpers/requests";
 import CustomSnackbar from "../components/CustomSnackbar";
 import {UserContext} from "../context/UserProvider";
-import {UserInterface} from "../interfaces/UserInterface";
+import {FormControl, InputLabel, Link, MenuItem, Select} from "@material-ui/core";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -35,27 +35,53 @@ const useStyles = makeStyles((theme) => ({
         margin: theme.spacing(3, 0, 2),
         color:'#fff'
     },
+    text: {
+        cursor: 'pointer'
+    },
+    select: {
+        margin: theme.spacing(2, 0, 1)
+    }
 }));
 
 export default function LoginPage() {
     const classes = useStyles();
+    const history = useHistory()
     const {clearError, request, loading, error} = useHttp()
     const [login, setLogin] = useState<string>('')
     const [password, setPassword] = useState<string>('')
     const {setIsAuth, setUser} = useContext(UserContext)
-    const history = useHistory()
+    const [isRegistration, setIsRegistration] = useState<boolean>(false)
+    const [name, setName] = useState<string>('')
+    const [gender, setGender] = useState<number>(2)
+    const [age, setAge] = useState<number>(0)
+
+    const logIn = () => {
+        request(requests.login.url(login, password), requests.login.method, null)
+            .then(data => {
+                setUser(data)
+                setIsAuth(true)
+                localStorage.setItem('login', login)
+                localStorage.setItem('password', password)
+                history.push(routes.toHome)
+            })
+    }
 
     const handleSubmit = async (event: React.FormEvent<EventTarget>) => {
         event.preventDefault()
+        try {await logIn()}
+        catch (e) {}
+    }
+
+    const handleSubmitRegister = (event: React.FormEvent<EventTarget>) => {
+        event.preventDefault()
         try {
-            await request(requests.login.url(login, password), requests.login.method, null)
-                .then(data => {
-                    setUser(data)
-                    setIsAuth(true)
-                    localStorage.setItem('login', login)
-                    localStorage.setItem('password', password)
-                })
-            history.push(routes.toHome)
+            request(requests.createUser.url, requests.createUser.method, {
+                "Name": name,
+                "Age": age,
+                "Gender": gender,
+                "Login": login,
+                "Password": password
+            }).then(() => {logIn()})
         } catch (e) {}
     }
 
@@ -71,52 +97,133 @@ export default function LoginPage() {
         <Container component="main" maxWidth="xs">
             <CssBaseline />
             <div className={classes.paper}>
-                <Avatar className={classes.avatar}>
-                    <EmojiFoodBeverageIcon fontSize="large"/>
-                </Avatar>
+                <Avatar className={classes.avatar}><EmojiFoodBeverageIcon fontSize="large"/></Avatar>
                 <Typography component="h1" variant="h5">
                     Go Eat App!
                 </Typography>
-                <form
-                    className={classes.form}
-                    noValidate
-                    onSubmit={handleSubmit}
-                >
-                    <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        id="login"
-                        label="Логин"
-                        name="login"
-                        autoComplete="login"
-                        autoFocus
-                        onChange={handleChangeLogin}
-                    />
-                    <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        name="password"
-                        label="Пароль"
-                        type="password"
-                        id="password"
-                        onChange={handleChangePassword}
-                        autoComplete="current-password"
-                    />
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        disabled={loading}
-                        className={classes.submit}
+                {!isRegistration ?
+                    <form
+                        className={classes.form}
+                        noValidate
+                        onSubmit={handleSubmit}
                     >
-                        Войти
-                    </Button>
-                </form>
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="login"
+                            label="Логин"
+                            name="login"
+                            autoComplete="login"
+                            autoFocus
+                            onChange={handleChangeLogin}
+                        />
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            name="password"
+                            label="Пароль"
+                            type="password"
+                            id="password"
+                            onChange={handleChangePassword}
+                            autoComplete="current-password"
+                        />
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            disabled={loading}
+                            className={classes.submit}
+                        >
+                            Войти
+                        </Button>
+                    </form>
+                    :
+                    <form
+                        className={classes.form}
+                        noValidate
+                        onSubmit={handleSubmitRegister}
+                    >
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="name"
+                            label="Имя"
+                            autoFocus
+                            onChange={(e) => setName(e.target.value)}
+                        />
+                        <FormControl fullWidth className={classes.select}>
+                            <InputLabel id="demo-simple-select-label">Пол</InputLabel>
+                            <Select
+                                variant="outlined"
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={gender}
+                                onChange={(e) => setGender(e.target.value as number)}
+                            >
+                                <MenuItem key={1} value={0}>Мужской</MenuItem>
+                                <MenuItem key={2} value={1}>Женский</MenuItem>
+                                <MenuItem key={3} value={2}>Не указан</MenuItem>
+                            </Select>
+                        </FormControl>
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="login"
+                            label="Возраст"
+                            type={'number'}
+                            value={age}
+                            onChange={(e) => setAge(Number(e.target.value))}
+                        />
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="loginReg"
+                            label="Логин"
+                            name="login"
+                            onChange={handleChangeLogin}
+                        />
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            name="password"
+                            label="Пароль"
+                            type="password"
+                            id="passwordReg"
+                            onChange={handleChangePassword}
+                        />
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            disabled={loading}
+                            className={classes.submit}
+                        >
+                            Зарегистрироваться
+                        </Button>
+                    </form>
+                }
+                <Link
+                    className={classes.text}
+                    onClick={(e: { preventDefault: () => void; }) => {
+                        e.preventDefault()
+                        setIsRegistration(!isRegistration)
+                    }}>
+                    {isRegistration ? 'Вход' : 'Регистрация'}
+                </Link>
             </div>
             <CustomSnackbar
                 open={Boolean(error)}
